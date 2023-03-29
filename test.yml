@@ -1,0 +1,17 @@
+---
+- name: installazione pacchetti webserver in ambiente di prod e sviluppo
+  hosts: test,webservers
+  become: yes
+  tasks:
+    - name: Install a list of packages
+      yum:
+        name:
+          - httpd
+          - mod_ssl
+          - mariadb
+        state: present
+    - name: install the 'Development tools' package group
+      yum:
+        name: "@Development tools"
+        state: present
+      when: ("test" in group_names)
