@@ -1,0 +1,10 @@
+---
+- name: test
+  hosts: all
+  become: true
+  tasks:
+    - name: installazione pacchetto prova
+      yum:
+        name: vim
+        state:  present
+        
