@@ -1,0 +1,37 @@
+---
+- name: creazione partizioni
+  hosts: all
+  become: true
+  tasks:
+    - name: creazione partizione
+      parted: 
+        device: /dev/sdc
+        nember: 1
+        flags: [lvm]   
+        state: present
+    - name: creazione volume group
+      lvg:
+        vg: vg0
+        pvs: /dev/sdc1
+      when: ansible_devices.sdc.partitions.sdc1 is defined
+    - name: creazione logical volume
+      lvol:
+        vg: vg0
+        lv: lv0
+        size: 1500m
+      when: ansible_lvm.vgs.vg0 is defined and (( ansible_lvm.vgs.vg0.size_g | float) > 1.5)
+    - name: manda un messaggio se il volume group non ha spazio
+      debug:
+        msg: non hai abbastanza spazio nel vg0
+      when: ansible_lvm.vgs.vg0 is defined and ((ansible_lvm.vgs.vg0.size_g | float ) < 1.5)
+    - name: creazione piccola partizione
+      lvol:
+        vg: vg0
+        lv: lv0
+        size: 1500m
+      when: ansible_lvm.vgs.vg0 is defined and (( ansible_lvm.vgs.vg0.size_g | float ) < 1.5)
+    - name: creazione filesystem
+      filesystem:
+        dev: /dev/vg0/lv0
+        fstype: xfs
+      when: ansible_lvm.vgs.vg0 is defined
