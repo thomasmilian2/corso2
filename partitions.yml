@@ -6,7 +6,7 @@
     - name: creazione partizione
       parted: 
         device: /dev/sdc
-        nember: 1
+        number: 1
         flags: [lvm]   
         state: present
     - name: creazione volume group
